@@ -51,9 +51,14 @@ def get_all_items_recursive(collection_id: int) -> List[Dict[str, any]]:
         for item in collection_data:
             item_model = item.get("model")
             item_id = item.get("id")
+            item_can_delete = item.get("can_delete", False)
 
             if not item_model or item_id is None:
                 logging.warning(f"Skipping item with missing model or id in collection {collection_id}: {item}")
+                continue
+            
+            # Just a safety check to ensure we only process items we can delete
+            if item_can_delete == False:
                 continue
 
             if item_model == "collection":
