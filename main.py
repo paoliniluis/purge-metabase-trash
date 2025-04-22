@@ -58,7 +58,7 @@ def get_all_items_recursive(collection_id: int) -> List[Dict[str, any]]:
                 continue
             
             # Just a safety check to ensure we only process items we can delete
-            if item_can_delete == False:
+            if item_can_delete == False and item_model != "collection":
                 continue
 
             if item_model == "collection":
@@ -102,7 +102,12 @@ def delete_items(items: List[Dict[str, any]]):
                  # Raise for non-2xx status codes not handled above
                  response.raise_for_status()
         except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to delete {model} with id {item_id}: {e}, or {model} has already been deleted in cascade.")
+            if model == "collection":
+                # Handle specific case for collections
+                logging.warning(f"Failed to delete collection {item_id}: We cannot hard delete collections (yet)")
+            else:
+                # General case for other models
+                logging.error(f"Failed to delete {model} with id {item_id}: {e}, or {model} has already been deleted in cascade.")
             failed_count += 1
         except Exception as e:
             logging.error(f"An unexpected error occurred deleting {model} {item_id}: {e}")
